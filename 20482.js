@@ -1,97 +1,82 @@
-let startingTiles = 4;
-for (let i = startingTiles; i>0; i--) {
-    document.getElementById("game").innerHTML += `<tr id="r${i}"></tr>`;
-};
-for (let i = startingTiles; i>0; i--) {
-    for (j = startingTiles; j>0; j--) {
-        document.getElementById(`r${i}`).innerHTML += `<td style="height:${800/startingTiles}px; width:${800/startingTiles}px; font-size:${400/startingTiles}px;" class="tile"></td>`
-    };
-};
+const DIMENSION = 4
+const TILE_SIZE = `${800 / DIMENSION}px`
+const FONT_SIZE = `${400 / DIMENSION}px`
+// Stores the tile contents.
+const tileArray = []
+// Stores the tile elements.
+const tiles = []
 
-
-
-let tiles = document.getElementsByClassName("tile");
-let tileArray = [];
-for(let i = startingTiles; i>0; i--) {
-    tileArray.push([]);
-};
-for(let i = startingTiles; i>0; i--) {
-    for(let j = startingTiles; j>0; j--) {
-        tileArray[i-1].push("");
-    };
-};
-    function tileCheck() {
-    for(let i = startingTiles; i>0; i--) {
-        for(let j = startingTiles; j>0; j--) {
-            tiles[startingTiles * (i-1) + (j-1)].innerHTML = tileArray[i-1][j-1]
-        };
-    };  
-};
-
-
-function fourChange() {
-    let luck = Math.round(Math.random()*10);
-    if (luck === 10) {
-        tileLuck = 4;
-    } else {
-        tileLuck = 2;
-    };
-};
-fourChange();
-function randomPlace() {
-    return [Math.ceil(Math.random()*startingTiles-1), Math.ceil(Math.random()*startingTiles-1)];
+const gameElement = document.getElementById("game")
+for (let row = 0; row < DIMENSION; row++) {
+  const rowElement = document.createElement('tr')
+  gameElement.appendChild(rowElement)
+  const rowContents = []
+  tileArray.push(rowContents)
+  for (let col = 0; col < DIMENSION; col++) {
+    const colElement = document.createElement('td')
+    colElement.style.height = TILE_SIZE
+    colElement.style.width = TILE_SIZE
+    colElement.style.fontSize = FONT_SIZE
+    colElement.className = 'tile'
+    rowElement.append(colElement)
+    tiles.push(colElement)
+    rowContents.push("")
+  }
 }
 
+// ADD DOCUMENTATION
+// This checks ...
+// This returns... nothing.
+function tileCheck() {
+    for(let i = DIMENSION; i>0; i--) {
+        for(let j = DIMENSION; j>0; j--) {
+            tiles[DIMENSION * (i-1) + (j-1)].innerHTML = tileArray[i-1][j-1]
+        };
+    };
+};
+
 function newTileSpawn() {
-    let newLocation = [0, 0]        
-    let possibleLocations = []
-    for(i = 0; i<tiles.length; i++) {
-        if (newLocation[1] < startingTiles-1) {
-                newLocation[1] ++
-            } else {
-                newLocation[0] ++
-                newLocation[1] = 0
-            }
-            if (newLocation[0] > startingTiles-1) {
-                newLocation[0] = 0
-                newLocation[1] = 0
-            } 
-            if (tileArray[newLocation[0]][newLocation[1]] === "") {
-                possibleLocations.push([newLocation[0], newLocation[1]])
-            }
-             
+    // Find all y-x pairs where there is no value, and spawn a new tile in one of them.
+    const emptyLocations = []
+    for(let row = 0; row < DIMENSION; row++) {
+      for(let col = 0; col < DIMENSION; col++) {
+        if (tileArray[row][col] === "") {
+          emptyLocations.push([row, col])
         }
-       
-    let random = Math.ceil(Math.random()*possibleLocations.length-1)
-        tileArray[possibleLocations[random][0]][possibleLocations[random][1]] = tileLuck
-        fourChange()
+      }
     }
-    let didntFail = false
-    let combinedX = []
-    let combinedY = []
-    for (let i = startingTiles; i>0; i--) {
-        combinedX.push([false])
-        combinedY.push([false])
-    }
+    const [spawnY, spawnX] =
+        emptyLocations[Math.floor(Math.random() * emptyLocations.length)]
+    const newValue = Math.random() < 0.1 ? 4 : 2
+    tileArray[spawnY][spawnX] = newValue
+}
+
+let didntFail = false
+const combinedX = []
+const combinedY = []
+for (let i = DIMENSION; i>0; i--) {
+    combinedX.push([false])
+    combinedY.push([false])
+}
 
 function checkDeath() {
     let wayToWin = false
-    
-    for (let x = 0; x < startingTiles && wayToWin === false; x++) {
-        for (let y = 0; y < startingTiles && wayToWin === false; y++) {                               
+
+    for (let x = 0; x < DIMENSION && wayToWin === false; x++) {
+        for (let y = 0; y < DIMENSION && wayToWin === false; y++) { 
             if (tileArray[x][y] === "") {
                 wayToWin = true
             }
         }
     }
-    if (wayToWin === false) {
+    if (!wayToWin) {
         let checkerA
         let checkerB
         let backAndForth = false
-        for (let x=0; x<startingTiles && wayToWin === false; x++) {
+        for (let x=0; x<DIMENSION && wayToWin === false; x++) {
             checkerA = ""
             checkerB = ""
-            for (let y=0; y<startingTiles && wayToWin === false; y++) {               
+            for (let y=0; y<DIMENSION && wayToWin === false; y++) {               
                 if (backAndForth === false) {
                     checkerA = tileArray[x][y]
                     backAndForth = true
@@ -105,14 +90,14 @@ function checkDeath() {
             }
         }
     }
-    if (wayToWin === false) {
+    if (!wayToWin) {
         let checkerA
         let checkerB
         let backAndForth = false
-        for (let y=0; y<startingTiles && wayToWin === false; y++) {
+        for (let y=0; y<DIMENSION && wayToWin === false; y++) {
             checkerA = ""
             checkerB = ""
-            for (let x=0; x<startingTiles && wayToWin === false; x++) {               
+            for (let x=0; x<DIMENSION && wayToWin === false; x++) {               
                 if (backAndForth === false) {
                     checkerA = tileArray[x][y]
                     backAndForth = true
@@ -126,19 +111,18 @@ function checkDeath() {
             }
         }
     }
-    if (wayToWin === false) {
+    if (!wayToWin) {
         startGame()
     }
 }
    
 
 function moveTile(posX, posY, distanceX, distanceY ) {
-        
         let finalPosX = posX + distanceX
         let finalPosY = posY + distanceY
         let posValue = tileArray[posX][posY]
         let finalPosValue = tileArray[finalPosX][finalPosY]
-        if (finalPosX < startingTiles && finalPosY < startingTiles && finalPosX > -1 && finalPosY > -1 && posValue !== "") {
+        if (finalPosX < DIMENSION && finalPosY < DIMENSION && finalPosX > -1 && finalPosY > -1 && posValue !== "") {
             if (finalPosValue === "" || finalPosValue === posValue) {
                 if (finalPosValue === "") {
                     tileArray[finalPosX][finalPosY] = tileArray[posX][posY]
@@ -151,21 +135,18 @@ function moveTile(posX, posY, distanceX, distanceY ) {
                         combinedY[posY] = true
                   
                     }
-                    
                 } else {
-                    return ""
-                    
+                    return
                 }
                 tileArray[posX][posY] = ""
                 didntFail = true
-                        
             } 
-        }   
+        }
     }
 
 function startGame() {
-    for (let x = 0; x < startingTiles; x++) {
-        for (let y = 0; y < startingTiles; y++) {                               
+    for (let x = 0; x < DIMENSION; x++) {
+        for (let y = 0; y < DIMENSION; y++) {                               
             tileArray[x][y] = ""
         }
     }
@@ -173,61 +154,62 @@ function startGame() {
         newTileSpawn()
     
     tileCheck()
-};
-startGame(); 
+}
+startGame()
+
 function fullMoveUp() {
-    for (let i = startingTiles-1; i>-1; i--) {
+    for (let i = DIMENSION-1; i>-1; i--) {
         combinedX[i] = false
         combinedY[i] = false
     }
     didntFail = false
-    for (let x = 1; x < startingTiles; x++) {
-        for (let y = 0; y < startingTiles; y++) {                               
-            for (i = 0; x-i>0 && i<startingTiles; i++) {
+    for (let x = 1; x < DIMENSION; x++) {
+        for (let y = 0; y < DIMENSION; y++) {                               
+            for (i = 0; x-i>0 && i<DIMENSION; i++) {
                 moveTile(x - i, y, -1, 0)  
             }            
         }
     }
-    if (didntFail === true) {
+    if (didntFail) {
         newTileSpawn()
         tileCheck()
         checkDeath()
     }
 }
+
 function fullMoveDown() {
-    for (let i = startingTiles-1; i>-1; i--) {
+    for (let i = DIMENSION-1; i>-1; i--) {
         combinedX[i] = false
         combinedY[i] = false
     }
     didntFail = false
-    for (let x = startingTiles-2; x > -1; x--) {
-        for (let y = startingTiles-1; y > -1; y--) {                               
-            for (let i = 0; x+i<startingTiles-1 && i<startingTiles-1; i++) {
+    for (let x = DIMENSION-2; x > -1; x--) {
+        for (let y = DIMENSION-1; y > -1; y--) {                               
+            for (let i = 0; x+i<DIMENSION-1 && i<DIMENSION-1; i++) {
                 moveTile(x + i, y, 1, 0)  
             }            
         }
     }
-    if (didntFail === true) {
+    if (didntFail) {
         newTileSpawn()
         tileCheck()
         checkDeath()
     }
 }
 
-
 function fullMoveRight() {
-    for (let i = startingTiles-1; i>-1; i--) {
+    for (let i = DIMENSION-1; i>-1; i--) {
         combinedX[i] = false
         combinedY[i] = false
     }
     didntFail = false
-    for (let y = startingTiles-2; y > -1; y--) {
-        for (let x = startingTiles-1; x > -1; x--) {                               
-            for(let i = 0; y+1<startingTiles && i<startingTiles;i++)
+    for (let y = DIMENSION-2; y > -1; y--) {
+        for (let x = DIMENSION-1; x > -1; x--) {                               
+            for(let i = 0; y+1<DIMENSION && i<DIMENSION;i++)
             moveTile(x, y + i, 0, 1)
         }
     }
-    if (didntFail === true) {
+    if (didntFail) {
         newTileSpawn()
         tileCheck()
         checkDeath()
@@ -235,40 +217,40 @@ function fullMoveRight() {
 }
 
 function fullMoveLeft() {
-    for (let i = startingTiles-1; i>-1; i--) {
+    for (let i = DIMENSION-1; i>-1; i--) {
         combinedX[i] = false
         combinedY[i] = false
     }
     didntFail = false
-    for (let y = 1; y < startingTiles; y++) {
-        for (let x = 0; x < startingTiles; x++) {                               
-            for (i = 0; y-i>0 && i<startingTiles; i++) {
+    for (let y = 1; y < DIMENSION; y++) {
+        for (let x = 0; x < DIMENSION; x++) {                               
+            for (i = 0; y-i>0 && i<DIMENSION; i++) {
                 moveTile(x, y-i, 0, -1)  
             }               
         }
     }
-    if (didntFail === true) {
+    if (didntFail) {
         newTileSpawn()
         tileCheck()
         checkDeath()
     }
-
 }
+
 this.addEventListener("keydown", pressingKey, false);
 
 function pressingKey() {
-    if (event.keyCode == 38) {
-        fullMoveUp()
-    };
-    if (event.keyCode == 40) {
-        fullMoveDown()
-    };
-    if (event.keyCode == 37) {
-        fullMoveLeft()
-    };
-    if (event.keyCode == 39) {
-        fullMoveRight()
-    };
-};
-
-
+  switch (event.keyCode) {
+    case 38:
+      fullMoveUp()
+      break
+    case 40:
+      fullMoveDown()
+      break
+    case 37:
+      fullMoveLeft()
+      break
+    case 39:
+      fullMoveRight()
+      break
+  }
+}
